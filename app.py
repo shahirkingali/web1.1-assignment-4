@@ -45,14 +45,17 @@ def results():
     """Displays results for current weather conditions."""
     # TODO: Use 'request.args' to retrieve the city & units from the query
     # parameters.
-    city = ''
-    units = ''
-
-    params = {
+    city = request.args.get('city')
+    units = request.args.get('units')
+    url = 'http://api.openweathermap.org/data/2.5/weather'
+    
         # TODO: Enter query parameters here for the 'appid' (your api key),
         # the city, and the units (metric or imperial).
         # See the documentation here: https://openweathermap.org/current
-
+params = {
+        'appid': API_KEY,
+        'q': city,
+        'units': units,
     }
 
     result_json = requests.get(API_URL, params=params).json()
@@ -67,16 +70,18 @@ def results():
     # datetime objects. You can do so using the `datetime.fromtimestamp()` 
     # function.
     context = {
-        'date': datetime.now(),
-        'city': '',
-        'description': '',
-        'temp': '',
-        'humidity': '',
-        'wind_speed': '',
-        'sunrise': '',
-        'sunset': '',
+        'date': formatDate(datetime.now()),
+        'weekday': getWeekDay(datetime.now()),
+        'city': result_json['name'],
+        'description': result_json['weather'][0]['description'],
+        'temp': result_json['main']['temp'],
+        'humidity': result_json['main']['humidity'],
+        'wind_speed': result_json['wind']['speed'],
+        'sunrise': formatTime(datetime.fromtimestamp(result_json['sys']['sunrise'])),
+        'sunset': formatTime(datetime.fromtimestamp(result_json['sys']['sunset'])),
         'units_letter': get_letter_for_units(units)
     }
+
 
     return render_template('results.html', **context)
 
