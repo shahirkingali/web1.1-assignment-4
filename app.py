@@ -91,12 +91,22 @@ def comparison_results():
     """Displays the relative weather for 2 different cities."""
     # TODO: Use 'request.args' to retrieve the cities & units from the query
     # parameters.
-    city1 = ''
-    city2 = ''
-    units = ''
+    city1 = request.args.get('city')
+    city2_info = request.args.get('city')
+    units = request.args.get('units')
+    url = 'https://api.openweathermap.org/data/2.5/onecall'
+    params = {
+        'appid': API_KEY,
+        'units': units,
+        'lat': latitude,
+        'lon': longitude,
+        'exclude': 'minutely,hourly',
+    }
+    result_json = requests.get(url, params=params).json()
 
     # TODO: Make 2 API calls, one for each city. HINT: You may want to write a 
     # helper function for this!
+    daily_forecast = extractDailyForecastData(result_json['daily'])
 
 
     # TODO: Pass the information for both cities in the context. Make sure to
@@ -104,7 +114,9 @@ def comparison_results():
     # HINT: It may be useful to create 2 new dictionaries, `city1_info` and 
     # `city2_info`, to organize the data.
     context = {
-
+        'city': city,
+        'units_letter': get_letter_for_units(units),
+        'daily_forecast': daily_forecast
     }
 
     return render_template('comparison_results.html', **context)
